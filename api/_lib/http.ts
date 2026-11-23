@@ -64,9 +64,15 @@ export async function fetchWithTimeout(
 ): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  // Honour a caller's signal too (e.g. a hedged request that lost the race).
+  const external = init.signal;
+  const onAbort = () => controller.abort();
+  if (external?.aborted) controller.abort();
+  external?.addEventListener('abort', onAbort, { once: true });
   try {
     return await fetchImpl(url, { ...init, signal: controller.signal });
   } finally {
     clearTimeout(timer);
+    external?.removeEventListener('abort', onAbort);
   }
 }

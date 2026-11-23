@@ -179,7 +179,15 @@ describe('model fallback', () => {
     return { calls, fetchImpl };
   };
   const call = (fetchImpl: typeof fetch) =>
-    generateJson({ apiKey: 'k', system: 's', prompt: 'p', schema: {}, fetchImpl, pauseMs: 0 });
+    generateJson({
+      apiKey: 'k',
+      system: 's',
+      prompt: 'p',
+      schema: {},
+      fetchImpl,
+      pauseMs: 0,
+      hedgeMs: 60_000,
+    });
 
   it('tries the next model when one is overloaded', async () => {
     const { calls, fetchImpl } = sequence([
@@ -193,15 +201,15 @@ describe('model fallback', () => {
 
   it('does not retry on client errors such as a bad key', async () => {
     const { calls, fetchImpl } = sequence([{ status: 403, body: {} }]);
-    await expect(call(fetchImpl)).rejects.toThrow('answered 403');
+    await expect(call(fetchImpl)).rejects.toThrow(/answered 403/);
     expect(calls).toHaveLength(1);
   });
 
   it('gives up after every model is busy', async () => {
     const { calls, fetchImpl } = sequence([{ status: 503, body: {} }]);
-    await expect(call(fetchImpl)).rejects.toThrow('answered 503');
+    await expect(call(fetchImpl)).rejects.toThrow(/All Gemini attempts failed .*answered 503/);
     expect(calls).toHaveLength(2 + FALLBACK_MODELS.length);
-    expect(calls[2]).toContain(`${DEFAULT_MODEL}:generateContent`);
+    expect(calls.at(-1)).toContain(`${DEFAULT_MODEL}:generateContent`);
   });
 
   it('treats network failures as retryable', async () => {
@@ -235,5 +243,35 @@ describe('time budget', () => {
       }),
     ).rejects.toThrow('503');
     expect(calls).toHaveLength(1);
+  });
+});
+
+describe('hedged requests', () => {
+  it('starts a second model when the first is slow and keeps the first answer', async () => {
+    const calls: string[] = [];
+    let firstAborted = false;
+    const fetchImpl = ((url: string | URL | Request, init?: RequestInit) => {
+      calls.push(String(url));
+      if (calls.length === 1) {
+        return new Promise<Response>((_, reject) => {
+          init?.signal?.addEventListener('abort', () => {
+            firstAborted = true;
+            reject(new Error('aborted'));
+          });
+        });
+      }
+      return Promise.resolve(new Response(JSON.stringify(geminiReply({ fast: true }))));
+    }) as typeof fetch;
+    const result = await generateJson({
+      apiKey: 'k',
+      system: 's',
+      prompt: 'p',
+      schema: {},
+      fetchImpl,
+      hedgeMs: 5,
+    });
+    expect(result).toEqual({ fast: true });
+    expect(calls[1]).toContain(`${FALLBACK_MODELS[0]}:generateContent`);
+    expect(firstAborted).toBe(true);
   });
 });
