@@ -35,6 +35,14 @@ Inhaled dose, not the AQI number, is what reaches the lungs. A 45-minute roadsid
 Delhi smog can be a fifth of a whole day's dose. Saans makes that visible and fixes it. All
 assumptions are documented in [`src/core/constants.ts`](src/core/constants.ts).
 
+## Design
+
+The interface uses warm paper tones with a clay accent and a serif voice for headlines and numbers,
+so the app reads like a calm family guide rather than an alarm panel. The signature element is the
+**breathing ring** in the hero. It shows the CPCB AQI and slowly "breathes", calm on clean days and
+shorter and faster as the index climbs. The animation is off for anyone who prefers reduced motion.
+Fonts are system fonts, so there are no external requests, and the app has light and dark themes.
+
 ## Tech
 
 | Layer         | Choice                                                                                                           |

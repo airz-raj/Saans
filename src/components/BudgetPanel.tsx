@@ -216,7 +216,7 @@ function AddActivity({ onAdd }: { onAdd: (activity: Activity) => void }) {
       />
       <NumberField
         label="Starts at"
-        unit="hour, 0–23"
+        unit="hour"
         value={start}
         onChange={setStart}
         min={0}

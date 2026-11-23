@@ -3,6 +3,7 @@ import { applySwap } from './core/optimizer';
 import { buildDefaultPlan } from './core/plan';
 import type { Activity, Place, Profile, Swap } from './core/types';
 import { BudgetPanel } from './components/BudgetPanel';
+import { Hero } from './components/Hero';
 import { HomeLabPanel } from './components/HomeLabPanel';
 import { HouseholdPanel } from './components/HouseholdPanel';
 import { LocationPicker } from './components/LocationPicker';
@@ -141,6 +142,15 @@ export function App() {
       </header>
       <StatusBanner air={air} />
       <main id="main" tabIndex={-1}>
+        <Hero
+          aqi={insights.aqi}
+          placeName={air.snapshot.place.name}
+          status={air.status}
+          budget={insights.budget}
+          topSwap={insights.swaps[0]}
+          ventilate={insights.windowLabel(insights.outlook.ventilate)}
+          onOpenBudget={() => setTab('budget')}
+        />
         <Tabs tabs={TABS} active={tab} onChange={setTab} label="Saans sections" />
         {TABS.map(({ id }) => (
           <section

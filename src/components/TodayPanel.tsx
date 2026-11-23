@@ -2,7 +2,6 @@ import { POLLUTANT_LABELS } from '../core/constants';
 import { aqiAdvice, dominantText, formatConc } from '../core/explain';
 import type { Outlook, TimeWindow } from '../core/forecast';
 import { POLLUTANTS, type AirSnapshot, type AqiResult, type Profile } from '../core/types';
-import { AqiGauge } from './AqiGauge';
 import { HourlyChart } from './HourlyChart';
 
 interface TodayPanelProps {
@@ -45,9 +44,8 @@ export function TodayPanel({ snapshot, aqi, outlook, profile, windowLabel }: Tod
   return (
     <div className="grid">
       <section className="card" aria-labelledby="now-heading">
-        <h2 id="now-heading">Air right now</h2>
+        <h2 id="now-heading">What it means for your family</h2>
         <div className="now">
-          <AqiGauge aqi={aqi} />
           <div>
             <p className="lead">{dominantText(aqi.dominant)}</p>
             <p>
