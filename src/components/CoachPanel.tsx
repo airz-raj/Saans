@@ -38,7 +38,7 @@ function SourceBadge({ source }: { source?: Source }) {
     <p className={`badge badge-${source}`}>
       {source === 'gemini'
         ? 'Written by Gemini from your numbers'
-        : 'Offline explanation — AI coach unavailable'}
+        : 'Offline explanation — Gemini is busy right now, so this reply comes from Saans’ own engine. Try again in a minute.'}
     </p>
   );
 }
