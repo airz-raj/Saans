@@ -14,6 +14,8 @@ export interface CoachDeps {
   model: string | undefined;
   limiter: RateLimiter;
   fetchImpl?: typeof fetch;
+  /** Pause between model attempts; tests set 0. */
+  retryPauseMs?: number;
 }
 
 export function createCoachHandler(deps: CoachDeps) {
@@ -53,6 +55,7 @@ export function createCoachHandler(deps: CoachDeps) {
         prompt: buildPrompt(parsed.data),
         schema: RESPONSE_SCHEMAS[mode],
         fetchImpl: deps.fetchImpl,
+        pauseMs: deps.retryPauseMs,
       });
       const result = resultSchemas[mode].safeParse(raw);
       if (!result.success) throw new GeminiError('Model output failed validation');

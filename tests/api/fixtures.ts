@@ -33,6 +33,10 @@ export const coachContext = {
   pm25Now: 301,
   cleanWindow: '1 PM–4 PM',
   worstWindow: '5 AM–8 AM',
+  forecast: [
+    { time: '5 PM', pm25: 160 },
+    { time: '6 PM', pm25: 190 },
+  ],
   household: { persona: 'adult', children: 1, elders: 1, sensitiveMember: true },
   budget: {
     totalDoseUg: 2800,

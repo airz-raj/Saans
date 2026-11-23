@@ -18,6 +18,8 @@ export interface CoachContext {
   pm25Now: number;
   cleanWindow: string | null;
   worstWindow: string | null;
+  /** Next 24 hours of outdoor PM2.5 with 12-hour clock labels, so the model can reason about times. */
+  forecast: { time: string; pm25: number }[];
   household: {
     persona: Profile['persona'];
     children: number;
@@ -56,6 +58,7 @@ export interface ContextInput {
   pm25Now: number;
   cleanWindow: string | null;
   worstWindow: string | null;
+  forecast: readonly { time: string; pm25: number }[];
   profile: Profile;
   budget: DayBudget;
   swaps: readonly Swap[];
@@ -72,6 +75,9 @@ export function buildCoachContext(input: ContextInput): CoachContext {
     pm25Now: Math.round(input.pm25Now),
     cleanWindow: input.cleanWindow,
     worstWindow: input.worstWindow,
+    forecast: input.forecast
+      .slice(0, 24)
+      .map((h) => ({ time: h.time.slice(0, 10), pm25: Math.round(h.pm25) })),
     household: {
       persona: profile.persona,
       children: profile.children,

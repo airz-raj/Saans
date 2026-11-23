@@ -1,8 +1,14 @@
 import { createCoachHandler } from '../../api/coach';
-import { DEFAULT_MODEL, generateJson } from '../../api/_lib/gemini';
+import { DEFAULT_MODEL, FALLBACK_MODELS, generateJson } from '../../api/_lib/gemini';
 import { buildPrompt, sanitiseQuestion } from '../../api/_lib/prompt';
 import { createRateLimiter } from '../../api/_lib/rateLimit';
 import { coachContext, geminiReply, stubFetch } from './fixtures';
+
+// Handlers log upstream failures on purpose; keep test output readable.
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
+});
+afterEach(() => vi.restoreAllMocks());
 
 const plan = {
   headline: 'Shift exercise indoors and air out the house at 1 PM.',
@@ -30,6 +36,7 @@ const handler = (
       apiKey: apiKey ?? undefined,
       model: undefined,
       limiter: createRateLimiter(3, 3),
+      retryPauseMs: 0,
       fetchImpl: stub.fetchImpl,
     }),
   };
@@ -158,5 +165,75 @@ describe('rate limiter', () => {
     expect(limiter.take('a', 10).allowed).toBe(false);
     expect(limiter.take('a', 1_100).allowed).toBe(true);
     expect(limiter.take('b', 10).allowed).toBe(true);
+  });
+});
+
+describe('model fallback', () => {
+  const sequence = (replies: { status: number; body: unknown }[]) => {
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string | URL | Request) => {
+      calls.push(String(url));
+      const reply = replies[calls.length - 1] ?? replies[replies.length - 1]!;
+      return new Response(JSON.stringify(reply.body), { status: reply.status });
+    }) as typeof fetch;
+    return { calls, fetchImpl };
+  };
+  const call = (fetchImpl: typeof fetch) =>
+    generateJson({ apiKey: 'k', system: 's', prompt: 'p', schema: {}, fetchImpl, pauseMs: 0 });
+
+  it('tries the next model when one is overloaded', async () => {
+    const { calls, fetchImpl } = sequence([
+      { status: 503, body: { error: 'busy' } },
+      { status: 200, body: geminiReply({ ok: true }) },
+    ]);
+    await expect(call(fetchImpl)).resolves.toEqual({ ok: true });
+    expect(calls).toHaveLength(2);
+    expect(calls[1]).toContain(`${FALLBACK_MODELS[0]}:generateContent`);
+  });
+
+  it('does not retry on client errors such as a bad key', async () => {
+    const { calls, fetchImpl } = sequence([{ status: 403, body: {} }]);
+    await expect(call(fetchImpl)).rejects.toThrow('answered 403');
+    expect(calls).toHaveLength(1);
+  });
+
+  it('gives up after every model is busy', async () => {
+    const { calls, fetchImpl } = sequence([{ status: 503, body: {} }]);
+    await expect(call(fetchImpl)).rejects.toThrow('answered 503');
+    expect(calls).toHaveLength(2 + FALLBACK_MODELS.length);
+    expect(calls[2]).toContain(`${DEFAULT_MODEL}:generateContent`);
+  });
+
+  it('treats network failures as retryable', async () => {
+    let n = 0;
+    const fetchImpl = (async () => {
+      n += 1;
+      if (n === 1) throw new Error('socket hang up');
+      return new Response(JSON.stringify(geminiReply({ ok: 1 })));
+    }) as typeof fetch;
+    await expect(call(fetchImpl)).resolves.toEqual({ ok: 1 });
+  });
+});
+
+describe('time budget', () => {
+  it('stops trying new models once the budget is spent', async () => {
+    let clock = 0;
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string | URL | Request) => {
+      calls.push(String(url));
+      clock += 24_000; // each attempt "takes" 24 s
+      return new Response('{}', { status: 503 });
+    }) as typeof fetch;
+    await expect(
+      generateJson({
+        apiKey: 'k',
+        system: 's',
+        prompt: 'p',
+        schema: {},
+        fetchImpl,
+        now: () => clock,
+      }),
+    ).rejects.toThrow('503');
+    expect(calls).toHaveLength(1);
   });
 });

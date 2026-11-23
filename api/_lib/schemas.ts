@@ -31,6 +31,10 @@ export const coachContext = z.object({
   pm25Now: z.number().min(0).max(2000),
   cleanWindow: shortText(40).nullable(),
   worstWindow: shortText(40).nullable(),
+  forecast: z
+    .array(z.object({ time: shortText(10), pm25: z.number().min(0).max(2000) }))
+    .max(24)
+    .default([]),
   household: z.object({
     persona: z.enum(['adult', 'child', 'older']),
     children: count,

@@ -68,6 +68,7 @@ export function useInsights(
         pm25Now: nowPm25,
         cleanWindow: windowLabel(next24.cleanest),
         worstWindow: windowLabel(next24.dirtiest),
+        forecast: next24.hours.map((h) => ({ time: formatHour(pointHour(h)), pm25: h.pm2_5 })),
         profile,
         budget,
         swaps,

@@ -3,6 +3,12 @@ import { createGeocodeHandler, GEO_CACHE } from '../../api/geocode';
 import { fillGaps, normaliseAir } from '../../api/_lib/openMeteo';
 import { openMeteoAir, stubFetch } from './fixtures';
 
+// Handlers log upstream failures on purpose; keep test output readable.
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
+});
+afterEach(() => vi.restoreAllMocks());
+
 const get = (path: string) => new Request(`https://saans.test${path}`);
 
 describe('GET /api/air', () => {

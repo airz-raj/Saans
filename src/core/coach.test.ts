@@ -18,6 +18,7 @@ const context = buildCoachContext({
   pm25Now: snapshot.current.pm2_5,
   cleanWindow: '1 PM–4 PM',
   worstWindow: '5 AM–8 AM',
+  forecast: Array.from({ length: 30 }, (_, i) => ({ time: `${i}:00 extra-long`, pm25: 100.4 + i })),
   profile: { ...DEFAULT_PROFILE, sensitiveMember: true },
   budget: dayBudget(plan, ctx),
   swaps: suggestSwaps(plan, ctx),
@@ -31,6 +32,8 @@ describe('buildCoachContext', () => {
     expect(context.swaps.length).toBeLessThanOrEqual(5);
     expect(Number.isInteger(context.budget.totalDoseUg)).toBe(true);
     expect(context.dominant).toBe('PM2.5');
+    expect(context.forecast).toHaveLength(24);
+    expect(context.forecast[0]).toEqual({ time: '0:00 extra', pm25: 100 });
   });
 });
 

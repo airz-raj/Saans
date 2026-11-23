@@ -39,6 +39,7 @@ describe('api client', () => {
       pm25Now: 50,
       cleanWindow: null,
       worstWindow: null,
+      forecast: [],
       profile: (await import('../core/defaults')).DEFAULT_PROFILE,
       budget: {
         items: [],
