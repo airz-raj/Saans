@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}', 'api/**/*.ts'],
-        exclude: ['src/main.tsx', 'src/**/*.test.{ts,tsx}', 'src/vite-env.d.ts'],
+        exclude: ['src/main.tsx', 'src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/testing/**'],
         reporter: ['text', 'html', 'lcov'],
       },
     },
