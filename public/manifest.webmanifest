@@ -1,0 +1,9 @@
+{
+  "name": "Saans — Urban Air Quality Assistant",
+  "short_name": "Saans",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1f1d",
+  "theme_color": "#0f5c55",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
