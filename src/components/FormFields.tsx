@@ -24,7 +24,7 @@ export function NumberField({
   step = 1,
   unit,
   hint,
-}: NumberFieldProps): ReactElement {
+}: Readonly<NumberFieldProps>): ReactElement {
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
   return (
@@ -72,7 +72,7 @@ export function SelectField<T extends string>({
   value,
   options,
   onChange,
-}: SelectFieldProps<T>): ReactElement {
+}: Readonly<SelectFieldProps<T>>): ReactElement {
   const id = useId();
   return (
     <div className="field">
@@ -94,7 +94,7 @@ interface ToggleProps {
   onChange: (checked: boolean) => void;
 }
 
-export function Toggle({ label, checked, onChange }: ToggleProps): ReactElement {
+export function Toggle({ label, checked, onChange }: Readonly<ToggleProps>): ReactElement {
   const id = useId();
   return (
     <div className="toggle">
@@ -116,7 +116,7 @@ interface StatProps {
 }
 
 /** A headline number with a plain-language label underneath. */
-export function Stat({ value, label, tone }: StatProps): ReactElement {
+export function Stat({ value, label, tone }: Readonly<StatProps>): ReactElement {
   return (
     <div className={tone ? `stat stat-${tone}` : 'stat'}>
       <span className="stat-value">{value}</span>

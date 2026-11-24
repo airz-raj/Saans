@@ -8,11 +8,16 @@ interface PlanCardProps {
   language: Language;
 }
 
+const planButtonLabel = (loading: boolean, hasPlan: boolean): string => {
+  if (loading) return 'Writing your plan…';
+  return hasPlan ? 'Rewrite my plan' : 'Write my plan';
+};
+
 /** "My plan for today": a prioritised family plan written from the computed numbers. */
-export function PlanCard({ context, language }: PlanCardProps): ReactElement {
+export function PlanCard({ context, language }: Readonly<PlanCardProps>): ReactElement {
   const [plan, run] = useCoach('plan', fallbackPlan);
   const loading = plan.status === 'loading';
-  const label = loading ? 'Writing your plan…' : plan.result ? 'Rewrite my plan' : 'Write my plan';
+  const label = planButtonLabel(loading, plan.result !== undefined);
 
   return (
     <section className="card" aria-labelledby="plan-heading" aria-busy={loading}>

@@ -19,7 +19,7 @@ export function TodayPanel({
   outlook,
   profile,
   windowLabel,
-}: TodayPanelProps): ReactElement {
+}: Readonly<TodayPanelProps>): ReactElement {
   const advice = aqiAdvice(aqi.category);
   const hasVulnerable =
     profile.children > 0 ||

@@ -6,10 +6,15 @@ import type { Swap } from '../../core/types';
 /** Changes smaller than this (kg CO₂) are not worth a chip. */
 const CO2_CHIP_THRESHOLD = 0.01;
 
-const signed = (value: number, digits = 0): string =>
-  `${value > 0 ? '+' : value < 0 ? '−' : ''}${Math.abs(value).toFixed(digits)}`;
+/** Formats a change with an explicit sign: "+12", "−0.50", "0". */
+export function signed(value: number, digits = 0): string {
+  const magnitude = Math.abs(value).toFixed(digits);
+  if (value > 0) return `+${magnitude}`;
+  if (value < 0) return `−${magnitude}`;
+  return magnitude;
+}
 
-function ImpactChips({ swap }: { swap: Swap }): ReactElement {
+function ImpactChips({ swap }: Readonly<{ swap: Swap }>): ReactElement {
   return (
     <ul className="chips" aria-label="Impact">
       <li className="chip chip-good">−{percent(swap.doseSaved, swap.doseBefore)}% dose</li>
@@ -30,7 +35,7 @@ interface SwapListProps {
 }
 
 /** Ranked suggestions; applying one announces the saving to screen readers. */
-export function SwapList({ swaps, exposure, onApply }: SwapListProps): ReactElement {
+export function SwapList({ swaps, exposure, onApply }: Readonly<SwapListProps>): ReactElement {
   const [announcement, setAnnouncement] = useState('');
 
   const apply = (swap: Swap) => {

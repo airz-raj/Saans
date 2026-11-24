@@ -10,13 +10,26 @@ interface LocationPickerProps {
 
 const QUERY_PATTERN = /^[\p{L}\p{M}\s.,'-]{2,60}$/u;
 
+/** Screen-reader message describing where the place search has got to. */
+export function searchStatus(
+  valid: boolean,
+  fresh: boolean,
+  error: string | undefined,
+  count: number,
+): string {
+  if (!valid) return '';
+  if (!fresh) return 'Searching…';
+  if (error) return error;
+  return count === 0 ? 'No places found.' : `${count} places found.`;
+}
+
 interface SearchState {
   query: string;
   results: Place[];
   error?: string;
 }
 
-export function LocationPicker({ current, onSelect }: LocationPickerProps): ReactElement {
+export function LocationPicker({ current, onSelect }: Readonly<LocationPickerProps>): ReactElement {
   const inputId = useId();
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState<SearchState>({ query: '', results: [] });
@@ -39,12 +52,7 @@ export function LocationPicker({ current, onSelect }: LocationPickerProps): Reac
 
   const fresh = valid && search.query === debounced;
   const results = fresh ? search.results : [];
-  const status = !valid
-    ? ''
-    : !fresh
-      ? 'Searching…'
-      : (search.error ??
-        (results.length === 0 ? 'No places found.' : `${results.length} places found.`));
+  const status = searchStatus(valid, fresh, search.error, results.length);
 
   const choose = (place: Place) => {
     onSelect(place);

@@ -49,8 +49,11 @@ export const coachContext = {
 };
 
 /** The URL of whatever fetch was called with, as a string. */
-export const urlOf = (input: string | URL | Request): string =>
-  typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+export function urlOf(input: string | URL | Request): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+}
 
 /** A fetch stub that records calls and replies with the given body/status. */
 export function stubFetch(body: unknown, status = 200) {

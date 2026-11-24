@@ -1,5 +1,5 @@
+// Used by Vercel when it compiles the functions; local type-checking uses tsconfig.node.json.
 {
-  "//": "Used by Vercel when it compiles the functions; local type-checking uses tsconfig.node.json.",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023", "DOM"],

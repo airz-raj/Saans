@@ -7,7 +7,7 @@ interface SiteHeaderProps {
   onSelectPlace: (place: Place) => void;
 }
 
-export function SiteHeader({ place, onSelectPlace }: SiteHeaderProps): ReactElement {
+export function SiteHeader({ place, onSelectPlace }: Readonly<SiteHeaderProps>): ReactElement {
   return (
     <header className="site-header">
       <div className="brand">

@@ -3,7 +3,7 @@ import type { CoachContext, Language } from '../core/coach';
 import { AdvisoryCard } from './coach/AdvisoryCard';
 import { AskCard } from './coach/AskCard';
 import { PlanCard } from './coach/PlanCard';
-import { SelectField } from './fields';
+import { SelectField } from './FormFields';
 
 interface CoachPanelProps {
   context: CoachContext;
@@ -21,7 +21,7 @@ export default function CoachPanel({
   context,
   language,
   onLanguageChange,
-}: CoachPanelProps): ReactElement {
+}: Readonly<CoachPanelProps>): ReactElement {
   return (
     <div className="grid">
       <section className="card span-2" aria-labelledby="coach-heading">

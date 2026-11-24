@@ -1,7 +1,7 @@
 import { useState, type ReactElement, type SyntheticEvent } from 'react';
 import { quarter } from '../../core/plan';
 import type { Activity } from '../../core/types';
-import { NumberField, SelectField } from '../fields';
+import { NumberField, SelectField } from '../FormFields';
 
 /** Activities a family most often wants to try at a different time or place. */
 export const ACTIVITY_PRESETS = {
@@ -43,7 +43,9 @@ export function createActivity(
   };
 }
 
-export function AddActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }): ReactElement {
+export function AddActivityForm({
+  onAdd,
+}: Readonly<{ onAdd: (activity: Activity) => void }>): ReactElement {
   const [preset, setPreset] = useState<PresetKey>('park');
   const [start, setStart] = useState(17);
   const [minutes, setMinutes] = useState(30);

@@ -1,7 +1,7 @@
 import { useId, type ReactElement } from 'react';
 import { budgetHeadline, formatDose } from '../../core/explain';
 import type { DayBudget } from '../../core/types';
-import { Stat } from '../fields';
+import { Stat } from '../FormFields';
 
 const DAYS = ['Today', 'Tomorrow'] as const;
 
@@ -12,7 +12,11 @@ interface BudgetSummaryProps {
 }
 
 /** Headline numbers for the day plus the today/tomorrow switch. */
-export function BudgetSummary({ budget, day, onDayChange }: BudgetSummaryProps): ReactElement {
+export function BudgetSummary({
+  budget,
+  day,
+  onDayChange,
+}: Readonly<BudgetSummaryProps>): ReactElement {
   const groupName = useId();
   return (
     <section className="card span-2" aria-labelledby="budget-heading">

@@ -8,7 +8,7 @@ interface HackListProps {
 }
 
 /** Indoor fixes ranked by how much PM2.5 each removes for the chosen moment. */
-export function HackList({ hacks, onAdopt }: HackListProps): ReactElement {
+export function HackList({ hacks, onAdopt }: Readonly<HackListProps>): ReactElement {
   if (hacks.length === 0) return <p>Your room is already well set up for this moment.</p>;
   return (
     <ol className="hack-list">

@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
+import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -11,6 +12,7 @@ export default tseslint.config(
       js.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
+      sonarjs.configs.recommended,
     ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -25,6 +27,8 @@ export default tseslint.config(
       eqeqeq: ['error', 'always'],
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       complexity: ['warn', 15],
+      // typescript-eslint's version of this rule (configured below) understands `_` prefixes.
+      'sonarjs/no-unused-vars': 'off',
       'max-lines-per-function': ['warn', { max: 120, skipBlankLines: true, skipComments: true }],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-unused-vars': [
@@ -44,6 +48,11 @@ export default tseslint.config(
       'max-lines-per-function': 'off',
       // Fetch stubs mirror fetch's async signature without awaiting anything.
       '@typescript-eslint/require-await': 'off',
+      // Tests use fixed fake data and inline stubs by design.
+      'sonarjs/no-hardcoded-ip': 'off',
+      'sonarjs/no-nested-functions': 'off',
+      'sonarjs/pseudo-random': 'off',
+      'sonarjs/use-type-alias': 'off',
     },
   },
 );

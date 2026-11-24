@@ -8,7 +8,7 @@ import {
   type Moment,
 } from '../core/indoor';
 import type { RoomSetup } from '../core/types';
-import { SelectField } from './fields';
+import { SelectField } from './FormFields';
 import { HackList } from './home/HackList';
 import { IndoorReadout } from './home/IndoorReadout';
 import { RoomForm } from './home/RoomForm';
@@ -33,7 +33,11 @@ export const adoptHack = (room: RoomSetup, hack: HomeHack): RoomSetup => ({
 });
 
 /** Home Air Lab: a physics model of the room and the fixes that matter most in it. */
-export function HomeLabPanel({ room, outdoorPm25, onRoomChange }: HomeLabPanelProps): ReactElement {
+export function HomeLabPanel({
+  room,
+  outdoorPm25,
+  onRoomChange,
+}: Readonly<HomeLabPanelProps>): ReactElement {
   const [moment, setMoment] = useState<Moment>('evening');
   const [announcement, setAnnouncement] = useState('');
 

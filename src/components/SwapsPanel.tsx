@@ -10,13 +10,13 @@ import {
   type LifestyleSwap,
 } from '../core/emissions';
 import type { Profile } from '../core/types';
-import { NumberField, Stat } from './fields';
+import { NumberField, Stat } from './FormFields';
 
 const kg = (value: number) => `${value >= 100 ? Math.round(value) : value.toFixed(1)} kg`;
 const grams = (value: number) =>
   value >= 1000 ? `${(value / 1000).toFixed(1)} kg` : `${Math.round(value)} g`;
 
-function Totals({ title, impact }: { title: string; impact: Emission }) {
+function Totals({ title, impact }: Readonly<{ title: string; impact: Emission }>): ReactElement {
   return (
     <div className="totals">
       <h3>{title}</h3>
@@ -40,7 +40,7 @@ function Totals({ title, impact }: { title: string; impact: Emission }) {
   );
 }
 
-export function SwapsPanel({ profile }: { profile: Profile }): ReactElement {
+export function SwapsPanel({ profile }: Readonly<{ profile: Profile }>): ReactElement {
   const swaps = useMemo(
     () => householdSwaps(profile.commuteMode, profile.commuteKm),
     [profile.commuteMode, profile.commuteKm],

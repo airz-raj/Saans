@@ -13,7 +13,7 @@ export const breathSeconds = (aqi: number): number =>
   Number((6 - 3.4 * Math.min(1, Math.max(0, aqi) / 500)).toFixed(2));
 
 /** The AQI as a ring that "breathes"; the number and category are always written out. */
-export function BreathRing({ aqi }: { aqi: AqiResult }): ReactElement {
+export function BreathRing({ aqi }: Readonly<{ aqi: AqiResult }>): ReactElement {
   const fraction = Math.min(1, aqi.aqi / 500);
   const style = { '--breath': `${breathSeconds(aqi.aqi)}s` } as CSSProperties;
   return (

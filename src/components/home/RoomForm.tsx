@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { INDOOR } from '../../core/constants';
 import type { CookingFuel, RoomSetup, WindowHabit } from '../../core/types';
-import { NumberField, SelectField, Toggle } from '../fields';
+import { NumberField, SelectField, Toggle } from '../FormFields';
 
 const WINDOW_OPTIONS: readonly { value: WindowHabit; label: string }[] = [
   { value: 'open', label: 'Open' },
@@ -30,7 +30,7 @@ interface RoomFormProps {
 }
 
 /** Describes the room the household spends most time in; every change re-runs the model. */
-export function RoomForm({ room, onChange }: RoomFormProps): ReactElement {
+export function RoomForm({ room, onChange }: Readonly<RoomFormProps>): ReactElement {
   const set = <K extends keyof RoomSetup>(key: K, value: RoomSetup[K]) =>
     onChange({ ...room, [key]: value });
 

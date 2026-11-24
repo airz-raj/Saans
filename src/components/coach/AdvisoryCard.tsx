@@ -29,7 +29,7 @@ export async function shareAdvisory(item: CoachAdvisory): Promise<string> {
 }
 
 /** A ready-to-send notice for a residents' association, school or office group. */
-export function AdvisoryCard({ context, language }: AdvisoryCardProps): ReactElement {
+export function AdvisoryCard({ context, language }: Readonly<AdvisoryCardProps>): ReactElement {
   const [advisory, run] = useCoach('community', fallbackAdvisory);
   const [shareStatus, setShareStatus] = useState('');
   const loading = advisory.status === 'loading';

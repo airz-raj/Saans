@@ -46,7 +46,8 @@ directly; API handlers never trust client input; the coach contract is defined o
 
 Components are grouped by panel (`components/budget`, `components/home`,
 `components/coach`) so each file has one job; panels only compose them. Stateful logic lives
-in hooks (`useAir`, `usePlan`, `useCoach`, `useInsights`).
+in hooks (`useAir`, `usePlan`, `useCoach`, `useInsights`). Every panel is wrapped in an
+`ErrorBoundary`, and every component has its own colocated test file.
 
 ## 3. Domain engine (`src/core`)
 

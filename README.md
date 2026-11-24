@@ -86,9 +86,12 @@ No database, no extra servers, no build-time secrets. Static assets ship with im
   single-purpose components grouped by panel, and serverless functions that validate everything.
 - One shared contract (`shared/coachContract.ts`): zod schemas for the AI coach, validated at
   runtime on the server and used as types in the browser without shipping zod to the client.
-- Type-aware ESLint (`strictTypeChecked`), explicit return types on every exported function,
-  complexity and function-length limits, strict TypeScript with `noUncheckedIndexedAccess`.
-- 230 tests across the engine, API handlers (mocked upstreams, model fallback and hedging,
+- Type-aware ESLint (`strictTypeChecked` + `stylisticTypeChecked`) plus SonarJS rules
+  (cognitive complexity, nested conditionals, read-only props, regex safety), explicit return
+  types on every exported function, function-length limits, strict TypeScript with
+  `noUncheckedIndexedAccess`. No duplicated code (jscpd).
+- Resilient UI: each panel renders inside an error boundary, so one failure never blanks the app.
+- 245 tests across the engine, API handlers (mocked upstreams, model fallback and hedging,
   validation, rate limits), hooks and UI. axe-core accessibility checks run on every tab.
   Coverage thresholds of ≥95% statements/lines and ≥90% branches are enforced in CI.
 - Structured JSON logs from functions with no personal data.

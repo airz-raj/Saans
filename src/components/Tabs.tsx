@@ -21,7 +21,7 @@ export function Tabs<T extends string>({
   active,
   onChange,
   label,
-}: TabsProps<T>): ReactElement {
+}: Readonly<TabsProps<T>>): ReactElement {
   const refs = useRef(new Map<T, HTMLButtonElement>());
 
   const select = (index: number) => {

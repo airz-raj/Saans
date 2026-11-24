@@ -72,10 +72,9 @@ export function explainSwap(swap: Swap, ctx: ExposureContext): string {
         swap.co2Saved > 0.005
           ? ` It also avoids ${swap.co2Saved.toFixed(2)} kg of CO₂ each way.`
           : ' Emissions stay about the same.';
+      const sign = swap.minutesDelta > 0 ? '+' : '';
       const time =
-        swap.minutesDelta === 0
-          ? ''
-          : ` Travel time changes by ${swap.minutesDelta > 0 ? '+' : ''}${swap.minutesDelta} min.`;
+        swap.minutesDelta === 0 ? '' : ` Travel time changes by ${sign}${swap.minutesDelta} min.`;
       return `${head} Inside the ${mode} you are shielded from tailpipe plumes at road level.${co2}${time}`;
     }
     case 'setting':

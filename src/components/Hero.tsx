@@ -14,7 +14,9 @@ interface HeroProps {
   onOpenBudget: () => void;
 }
 
-const shortPlace = (name: string) => name.replace(/\s*\(sample data\)$/, '');
+const SAMPLE_SUFFIX = ' (sample data)';
+const shortPlace = (name: string): string =>
+  name.endsWith(SAMPLE_SUFFIX) ? name.slice(0, -SAMPLE_SUFFIX.length) : name;
 
 /** The first thing a family sees: today's air, what their day costs them, and the best fix. */
 export function Hero({
@@ -25,7 +27,7 @@ export function Hero({
   topSwap,
   ventilate,
   onOpenBudget,
-}: HeroProps): ReactElement {
+}: Readonly<HeroProps>): ReactElement {
   const place = shortPlace(placeName);
   const headline =
     status === 'live'

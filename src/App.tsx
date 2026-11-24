@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useState, type ReactElement } from 'react';
 import type { Place, Profile } from './core/types';
 import { BudgetPanel } from './components/BudgetPanel';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Hero } from './components/Hero';
 import { HomeLabPanel } from './components/HomeLabPanel';
 import { HouseholdPanel } from './components/HouseholdPanel';
@@ -114,7 +115,7 @@ export function App(): ReactElement {
           onOpenBudget={() => setTab('budget')}
         />
         <Tabs tabs={TABS} active={tab} onChange={setTab} label="Saans sections" />
-        {TABS.map(({ id }) => (
+        {TABS.map(({ id, label }) => (
           <section
             key={id}
             id={panelId(id)}
@@ -123,7 +124,7 @@ export function App(): ReactElement {
             hidden={id !== tab}
             className="panel"
           >
-            {id === tab ? panels[id]() : null}
+            {id === tab ? <ErrorBoundary section={label}>{panels[id]()}</ErrorBoundary> : null}
           </section>
         ))}
       </main>

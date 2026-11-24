@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { MODES } from '../core/constants';
 import type { Persona, Profile, TransportMode } from '../core/types';
-import { NumberField, SelectField, Toggle } from './fields';
+import { NumberField, SelectField, Toggle } from './FormFields';
 
 interface HouseholdPanelProps {
   profile: Profile;
@@ -24,7 +24,7 @@ interface SectionProps {
   set: SetField;
 }
 
-function WhoSection({ profile, set }: SectionProps): ReactElement {
+function WhoSection({ profile, set }: Readonly<SectionProps>): ReactElement {
   return (
     <section className="card" aria-labelledby="who-heading">
       <h2 id="who-heading">Who is breathing?</h2>
@@ -160,7 +160,7 @@ export function HouseholdPanel({
   profile,
   onChange,
   onRebuild,
-}: HouseholdPanelProps): ReactElement {
+}: Readonly<HouseholdPanelProps>): ReactElement {
   const set: SetField = (key, value) => onChange({ ...profile, [key]: value });
   return (
     <div className="grid">

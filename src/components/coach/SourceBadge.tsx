@@ -8,6 +8,8 @@ const TEXT: Record<CoachSource, string> = {
 };
 
 /** Says where a reply came from, so people know whether the AI or the built-in engine wrote it. */
-export function SourceBadge({ source }: { source: CoachSource | undefined }): ReactElement | null {
+export function SourceBadge({
+  source,
+}: Readonly<{ source: CoachSource | undefined }>): ReactElement | null {
   return source ? <p className={`badge badge-${source}`}>{TEXT[source]}</p> : null;
 }

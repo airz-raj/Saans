@@ -12,8 +12,11 @@ export interface ActiveSources {
   smoking?: boolean | number;
 }
 
-const duty = (value: boolean | number | undefined) =>
-  typeof value === 'number' ? Math.min(1, Math.max(0, value)) : value ? 1 : 0;
+/** Normalises a duty cycle to 0…1; `true` means always on. */
+function duty(value: boolean | number | undefined): number {
+  if (typeof value === 'number') return Math.min(1, Math.max(0, value));
+  return value ? 1 : 0;
+}
 
 export type Moment = 'cooking' | 'evening' | 'sleeping';
 

@@ -17,15 +17,13 @@ interface AskCardProps {
   language: Language;
 }
 
-function Suggestions({
-  items,
-  onPick,
-  label,
-}: {
+interface SuggestionsProps {
   items: readonly string[];
   onPick: (text: string) => void;
   label?: string;
-}): ReactElement {
+}
+
+function Suggestions({ items, onPick, label }: Readonly<SuggestionsProps>): ReactElement {
   return (
     <div className="suggestions" aria-label={label}>
       {items.map((text) => (
@@ -38,7 +36,7 @@ function Suggestions({
 }
 
 /** Free-form questions, answered with the live forecast and the family's numbers attached. */
-export function AskCard({ context, language }: AskCardProps): ReactElement {
+export function AskCard({ context, language }: Readonly<AskCardProps>): ReactElement {
   const questionId = useId();
   const [question, setQuestion] = useState('');
   const [answer, run] = useCoach('ask', fallbackAnswer);

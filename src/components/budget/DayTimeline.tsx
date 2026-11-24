@@ -28,7 +28,7 @@ interface RowProps {
   onRemove: (id: string) => void;
 }
 
-function TimelineRow({ item, totalDose, maxDose, onRemove }: RowProps): ReactElement {
+function TimelineRow({ item, totalDose, maxDose, onRemove }: Readonly<RowProps>): ReactElement {
   const { activity, dose, concentration } = item;
   const filler = activity.id.startsWith(FILLER_PREFIX);
   return (
@@ -73,7 +73,12 @@ interface DayTimelineProps {
 }
 
 /** The whole day, hour by hour, with each activity's share of the dose. */
-export function DayTimeline({ budget, onRemove, onAdd, onReset }: DayTimelineProps): ReactElement {
+export function DayTimeline({
+  budget,
+  onRemove,
+  onAdd,
+  onReset,
+}: Readonly<DayTimelineProps>): ReactElement {
   const maxDose = Math.max(1, ...budget.items.map((item) => item.dose));
   return (
     <section className="card" aria-labelledby="timeline-heading">

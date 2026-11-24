@@ -18,7 +18,7 @@ interface BudgetPanelProps {
 }
 
 /** Breath budget: what the day costs the lungs, and the swaps that lower it. */
-export function BudgetPanel(props: BudgetPanelProps): ReactElement {
+export function BudgetPanel(props: Readonly<BudgetPanelProps>): ReactElement {
   return (
     <div className="grid">
       <BudgetSummary budget={props.budget} day={props.day} onDayChange={props.onDayChange} />

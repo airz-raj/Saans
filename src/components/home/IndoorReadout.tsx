@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { categoryFor, subIndex } from '../../core/aqi';
 import { formatConc, percent } from '../../core/explain';
-import { Stat } from '../fields';
+import { Stat } from '../FormFields';
 
 interface IndoorReadoutProps {
   indoor: number;
@@ -9,7 +9,7 @@ interface IndoorReadoutProps {
 }
 
 /** Indoor vs outdoor PM2.5 as numbers and proportional bars. */
-export function IndoorReadout({ indoor, outdoor }: IndoorReadoutProps): ReactElement {
+export function IndoorReadout({ indoor, outdoor }: Readonly<IndoorReadoutProps>): ReactElement {
   const scale = Math.max(indoor, outdoor, 1);
   const dirtierInside = indoor > outdoor;
   return (

@@ -8,45 +8,51 @@ export const quarter = (hours: number): number => Math.round(hours * 4) / 4;
 export const travelHours = (mode: keyof typeof MODES, km: number): number =>
   Math.max(0.25, quarter(km / MODES[mode].speedKmh));
 
-/** Builds a realistic starting day for the household from its profile. */
-export function buildDefaultPlan(profile: Profile): Activity[] {
-  const plan: Activity[] = [];
-  let errandStart = 17.5;
-  const add = (activity: Activity) => {
-    if (activity.duration > 0 && !overlaps(activity, plan)) plan.push(activity);
-  };
-  const isChild = profile.persona === 'child';
+/** Default timings, in local hours. */
+const DEFAULT_TIMES = {
+  adultSleep: { start: 23, duration: 7.5 },
+  childSleep: { start: 21.5, duration: 9 },
+  dinner: { start: 19.5, duration: 0.75 },
+  errand: { start: 17.5, duration: 0.5 },
+  /** Gap between getting home and heading out for errands. */
+  errandBuffer: 0.25,
+} as const;
 
-  add({
+const sleepBlock = (isChild: boolean): Activity => {
+  const timing = isChild ? DEFAULT_TIMES.childSleep : DEFAULT_TIMES.adultSleep;
+  return {
     id: 'sleep',
     label: 'Sleep',
     kind: 'sleep',
-    start: isChild ? 21.5 : 23,
-    duration: isChild ? 9 : 7.5,
+    ...timing,
     setting: 'home',
     effort: 'sleep',
-  });
+  };
+};
 
-  if (profile.commuteMode !== 'none' && profile.commuteKm > 0) {
-    const mode = profile.commuteMode;
-    const leg = travelHours(mode, profile.commuteKm);
-    const base = {
-      kind: 'commute' as const,
-      setting: 'transit' as const,
-      effort: MODES[mode].effort,
-      mode,
-      distanceKm: profile.commuteKm,
-      duration: leg,
-    };
-    add({
-      ...base,
+/** Outbound trip, the work/school day and the trip home; empty when there is no commute. */
+function commuteBlocks(profile: Profile, isChild: boolean): Activity[] {
+  if (profile.commuteMode === 'none' || profile.commuteKm <= 0) return [];
+  const mode = profile.commuteMode;
+  const leg = travelHours(mode, profile.commuteKm);
+  const trip = {
+    kind: 'commute',
+    setting: 'transit',
+    effort: MODES[mode].effort,
+    mode,
+    distanceKm: profile.commuteKm,
+    duration: leg,
+  } as const;
+  const dayStart = quarter(profile.departHour + leg);
+  const dayEnd = quarter(profile.returnHour);
+  return [
+    {
+      ...trip,
       id: 'commute-out',
       label: isChild ? 'Trip to school' : 'Commute to work',
       start: quarter(profile.departHour),
-    });
-    const dayStart = quarter(profile.departHour + leg);
-    const dayEnd = quarter(profile.returnHour);
-    add({
+    },
+    {
       id: 'day',
       label: isChild ? 'School' : 'Work',
       kind: 'work',
@@ -54,45 +60,75 @@ export function buildDefaultPlan(profile: Profile): Activity[] {
       duration: Math.max(0, dayEnd - dayStart),
       setting: isChild ? 'school' : 'office',
       effort: isChild ? 'light' : 'rest',
-    });
-    add({ ...base, id: 'commute-back', label: 'Trip home', start: dayEnd });
-    errandStart = quarter(dayEnd + leg + 0.25);
-  }
+    },
+    { ...trip, id: 'commute-back', label: 'Trip home', start: dayEnd },
+  ];
+}
 
-  if (profile.exerciseHour !== null && profile.exerciseMinutes > 0) {
-    const indoors = profile.exerciseSetting === 'home';
-    add({
+function exerciseBlock(profile: Profile): Activity[] {
+  if (profile.exerciseHour === null || profile.exerciseMinutes <= 0) return [];
+  const indoors = profile.exerciseSetting === 'home';
+  return [
+    {
       id: 'exercise',
       label: indoors ? 'Home workout' : 'Walk / jog',
       kind: 'exercise',
       start: quarter(profile.exerciseHour),
-      duration: quarter(profile.exerciseMinutes / 60) || 0.25,
+      duration: Math.max(0.25, quarter(profile.exerciseMinutes / 60)),
       setting: indoors ? 'home' : profile.exerciseSetting,
       effort: 'moderate',
-    });
-  }
+    },
+  ];
+}
 
-  if (profile.room.cookingFuel !== 'none') {
-    add({
+function cookingBlock(profile: Profile): Activity[] {
+  if (profile.room.cookingFuel === 'none') return [];
+  return [
+    {
       id: 'cooking',
       label: 'Cooking dinner',
       kind: 'cooking',
-      start: 19.5,
-      duration: 0.75,
+      ...DEFAULT_TIMES.dinner,
       setting: 'home',
       effort: 'light',
-    });
-  }
+    },
+  ];
+}
 
-  add({
+/** Errands happen after the trip home, or late afternoon for people who stay local. */
+function errandBlock(commute: readonly Activity[]): Activity {
+  const tripHome = commute.find((a) => a.id === 'commute-back');
+  const start = tripHome
+    ? quarter(tripHome.start + tripHome.duration + DEFAULT_TIMES.errandBuffer)
+    : DEFAULT_TIMES.errand.start;
+  return {
     id: 'errand',
     label: 'Market / errands',
     kind: 'errand',
-    start: errandStart,
-    duration: 0.5,
+    start,
+    duration: DEFAULT_TIMES.errand.duration,
     setting: 'outdoor-roadside',
     effort: 'light',
-  });
+  };
+}
 
+/**
+ * Builds a realistic starting day for the household from its profile. Blocks are added in
+ * priority order; any block that would overlap an earlier one is skipped.
+ */
+export function buildDefaultPlan(profile: Profile): Activity[] {
+  const isChild = profile.persona === 'child';
+  const commute = commuteBlocks(profile, isChild);
+  const candidates = [
+    sleepBlock(isChild),
+    ...commute,
+    ...exerciseBlock(profile),
+    ...cookingBlock(profile),
+    errandBlock(commute),
+  ];
+  const plan: Activity[] = [];
+  for (const activity of candidates) {
+    if (activity.duration > 0 && !overlaps(activity, plan)) plan.push(activity);
+  }
   return plan.sort((a, b) => a.start - b.start);
 }
