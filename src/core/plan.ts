@@ -3,9 +3,9 @@ import { overlaps } from './exposure';
 import type { Activity, Profile } from './types';
 
 /** Rounds hours to the nearest quarter hour. */
-export const quarter = (hours: number) => Math.round(hours * 4) / 4;
+export const quarter = (hours: number): number => Math.round(hours * 4) / 4;
 
-export const travelHours = (mode: keyof typeof MODES, km: number) =>
+export const travelHours = (mode: keyof typeof MODES, km: number): number =>
   Math.max(0.25, quarter(km / MODES[mode].speedKmh));
 
 /** Builds a realistic starting day for the household from its profile. */

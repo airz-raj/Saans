@@ -1,0 +1,15 @@
+{
+  "//": "Used by Vercel when it compiles the functions; local type-checking uses tsconfig.node.json.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  "include": ["./**/*.ts", "../shared/**/*.ts"]
+}

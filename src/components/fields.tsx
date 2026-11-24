@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useId, useState, type ReactElement, type ReactNode } from 'react';
 
 interface NumberFieldProps {
   label: string;
@@ -24,7 +24,7 @@ export function NumberField({
   step = 1,
   unit,
   hint,
-}: NumberFieldProps) {
+}: NumberFieldProps): ReactElement {
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
   return (
@@ -72,7 +72,7 @@ export function SelectField<T extends string>({
   value,
   options,
   onChange,
-}: SelectFieldProps<T>) {
+}: SelectFieldProps<T>): ReactElement {
   const id = useId();
   return (
     <div className="field">
@@ -94,7 +94,7 @@ interface ToggleProps {
   onChange: (checked: boolean) => void;
 }
 
-export function Toggle({ label, checked, onChange }: ToggleProps) {
+export function Toggle({ label, checked, onChange }: ToggleProps): ReactElement {
   const id = useId();
   return (
     <div className="toggle">
@@ -109,17 +109,16 @@ export function Toggle({ label, checked, onChange }: ToggleProps) {
   );
 }
 
-export function Stat({
-  value,
-  label,
-  tone,
-}: {
+interface StatProps {
   value: ReactNode;
   label: string;
   tone?: 'warn' | 'good';
-}) {
+}
+
+/** A headline number with a plain-language label underneath. */
+export function Stat({ value, label, tone }: StatProps): ReactElement {
   return (
-    <div className={`stat ${tone ? `stat-${tone}` : ''}`}>
+    <div className={tone ? `stat stat-${tone}` : 'stat'}>
       <span className="stat-value">{value}</span>
       <span className="stat-label">{label}</span>
     </div>

@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent, type ReactElement } from 'react';
 
 export interface TabDef<T extends string> {
   id: T;
@@ -12,11 +12,16 @@ interface TabsProps<T extends string> {
   label: string;
 }
 
-export const tabId = (id: string) => `tab-${id}`;
-export const panelId = (id: string) => `panel-${id}`;
+export const tabId = (id: string): string => `tab-${id}`;
+export const panelId = (id: string): string => `panel-${id}`;
 
 /** WAI-ARIA tabs: arrow keys move between tabs, Home/End jump to the ends, focus follows selection. */
-export function Tabs<T extends string>({ tabs, active, onChange, label }: TabsProps<T>) {
+export function Tabs<T extends string>({
+  tabs,
+  active,
+  onChange,
+  label,
+}: TabsProps<T>): ReactElement {
   const refs = useRef(new Map<T, HTMLButtonElement>());
 
   const select = (index: number) => {

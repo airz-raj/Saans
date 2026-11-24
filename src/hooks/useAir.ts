@@ -43,8 +43,7 @@ export function useAir(place: Place | null): AirState {
   }, [key, place]);
 
   if (!place) return { snapshot: sample, status: 'sample' };
-  if (!result || result.key !== key)
-    return { snapshot: result?.snapshot ?? sample, status: 'loading' };
+  if (result?.key !== key) return { snapshot: result?.snapshot ?? sample, status: 'loading' };
   if (result.error || !result.snapshot) {
     return { snapshot: sample, status: 'error', message: result.error ?? 'Live data unavailable' };
   }

@@ -26,7 +26,8 @@ export function fail(status: number, error: string, extra: Record<string, unknow
 /** Best-effort client identifier for rate limiting (first hop of X-Forwarded-For on Vercel). */
 export function clientKey(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'anonymous';
+  if (forwarded) return forwarded;
+  return request.headers.get('x-real-ip') ?? 'anonymous';
 }
 
 /**
@@ -62,12 +63,12 @@ export async function fetchWithTimeout(
   timeoutMs = 8000,
   fetchImpl: typeof fetch = fetch,
 ): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
   // Honour a caller's signal too (e.g. a hedged request that lost the race).
   const external = init.signal;
+  if (external?.aborted) throw new DOMException('The operation was aborted.', 'AbortError');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   const onAbort = () => controller.abort();
-  if (external?.aborted) controller.abort();
   external?.addEventListener('abort', onAbort, { once: true });
   try {
     return await fetchImpl(url, { ...init, signal: controller.signal });

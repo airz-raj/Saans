@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { formatDose, percent } from '../core/explain';
 import type { AqiResult, DayBudget, Swap } from '../core/types';
 import type { AirStatus } from '../hooks/useAir';
@@ -24,7 +25,7 @@ export function Hero({
   topSwap,
   ventilate,
   onOpenBudget,
-}: HeroProps) {
+}: HeroProps): ReactElement {
   const place = shortPlace(placeName);
   const headline =
     status === 'live'

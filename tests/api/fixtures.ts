@@ -48,11 +48,15 @@ export const coachContext = {
   hacks: [{ title: 'Build a box-fan filter', indoorBefore: 180, indoorAfter: 60 }],
 };
 
+/** The URL of whatever fetch was called with, as a string. */
+export const urlOf = (input: string | URL | Request): string =>
+  typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
 /** A fetch stub that records calls and replies with the given body/status. */
 export function stubFetch(body: unknown, status = 200) {
   const calls: { url: string; init?: RequestInit }[] = [];
   const fetchImpl = (async (url: string | URL | Request, init?: RequestInit) => {
-    calls.push({ url: String(url), init });
+    calls.push({ url: urlOf(url), init });
     return new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
   }) as typeof fetch;
   return { fetchImpl, calls };

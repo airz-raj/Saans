@@ -1,6 +1,7 @@
 import { AIR_CACHE, createAirHandler } from '../../api/air';
 import { createGeocodeHandler, GEO_CACHE } from '../../api/geocode';
-import { fillGaps, normaliseAir } from '../../api/_lib/openMeteo';
+import { fillGaps, normaliseAir, type NormalisedAir } from '../../api/_lib/openMeteo';
+import { createRateLimiter } from '../../api/_lib/rateLimit';
 import { openMeteoAir, stubFetch } from './fixtures';
 
 // Handlers log upstream failures on purpose; keep test output readable.
@@ -17,7 +18,7 @@ describe('GET /api/air', () => {
     const response = await createAirHandler(fetchImpl)(get('/api/air?lat=28.6139&lon=77.2090'));
     expect(response.status).toBe(200);
     expect(response.headers.get('cache-control')).toBe(AIR_CACHE);
-    const body = await response.json();
+    const body = (await response.json()) as NormalisedAir;
     expect(body.hourly).toHaveLength(48);
     expect(body.current).toMatchObject({
       time: '2026-11-23T08:15',
@@ -25,7 +26,7 @@ describe('GET /api/air', () => {
       no2: 90,
       co: 2400,
     });
-    expect(body.hourly[3].pm2_5).toBe(202); // gap filled from the previous hour
+    expect(body.hourly[3]?.pm2_5).toBe(202); // gap filled from the previous hour
     expect(calls[0]?.url).toContain('latitude=28.61');
     expect(calls[0]?.url).toContain('longitude=77.21');
   });
@@ -104,5 +105,36 @@ describe('GET /api/geocode', () => {
   it('returns 502 when the upstream fails', async () => {
     const { fetchImpl } = stubFetch('oops', 503);
     expect((await createGeocodeHandler(fetchImpl)(get('/api/geocode?q=Pune'))).status).toBe(502);
+  });
+});
+
+describe('normaliseAir edge cases', () => {
+  it('falls back to the first hour when the current block is missing', () => {
+    const { current: _drop, ...payload } = openMeteoAir;
+    const air = normaliseAir(payload);
+    expect(air.current.time).toBe(air.hourly[0]?.time);
+    expect(air.current.pm2_5).toBe(200);
+  });
+
+  it('tolerates missing pollutant series and coordinates', () => {
+    const air = normaliseAir({ timezone: 'UTC', hourly: { time: ['2026-11-23T00:00'] } });
+    expect(air.hourly[0]).toMatchObject({ pm2_5: 0, co: 0 });
+    expect([air.lat, air.lon]).toEqual([0, 0]);
+  });
+});
+
+describe('rate limiting on data endpoints', () => {
+  it('limits air and geocode lookups per client', async () => {
+    const { fetchImpl } = stubFetch(openMeteoAir);
+    const limiter = createRateLimiter(1, 1);
+    const air = createAirHandler(fetchImpl, limiter);
+    expect((await air(get('/api/air?lat=1&lon=1'))).status).toBe(200);
+    expect((await air(get('/api/air?lat=1&lon=1'))).status).toBe(429);
+    const geocode = createGeocodeHandler(
+      stubFetch({ results: [] }).fetchImpl,
+      createRateLimiter(1, 1),
+    );
+    expect((await geocode(get('/api/geocode?q=Pune'))).status).toBe(200);
+    expect((await geocode(get('/api/geocode?q=Pune'))).status).toBe(429);
   });
 });

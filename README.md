@@ -80,6 +80,19 @@ vercel --prod
 No database, no extra servers, no build-time secrets. Static assets ship with immutable caching.
 `/api/air` is edge-cached for 15 minutes and `/api/geocode` for a day.
 
+## Code quality and testing
+
+- Layered design: a pure domain engine (`src/core`) with no React or I/O, hooks for state, small
+  single-purpose components grouped by panel, and serverless functions that validate everything.
+- One shared contract (`shared/coachContract.ts`): zod schemas for the AI coach, validated at
+  runtime on the server and used as types in the browser without shipping zod to the client.
+- Type-aware ESLint (`strictTypeChecked`), explicit return types on every exported function,
+  complexity and function-length limits, strict TypeScript with `noUncheckedIndexedAccess`.
+- 230 tests across the engine, API handlers (mocked upstreams, model fallback and hedging,
+  validation, rate limits), hooks and UI. axe-core accessibility checks run on every tab.
+  Coverage thresholds of ≥95% statements/lines and ≥90% branches are enforced in CI.
+- Structured JSON logs from functions with no personal data.
+
 ## Security
 
 - Gemini key is server-side only (no `VITE_` prefix) and sent in a header, never in a URL.
@@ -111,11 +124,12 @@ answered from the client cache. Production JS is about 90 KB gzipped, React incl
 ## Project layout
 
 ```
-api/                 Vercel functions (air, geocode, coach) + _lib (validation, rate limit, Gemini, Open-Meteo)
+api/                 Vercel functions (air, geocode, coach) + _lib (validation, rate limit, Gemini, Open-Meteo, logging)
+shared/              Coach contract — zod schemas shared by server (runtime) and browser (types)
 src/core/            Domain engine — pure, fully unit-tested
 src/services/        API client (cache, de-dup, abort) and validated local storage
-src/hooks/           useAir, useInsights, usePersistentState, useDebouncedValue
-src/components/      Accessible UI panels
+src/hooks/           useAir, usePlan, useCoach, useInsights, usePersistentState, useDebouncedValue
+src/components/      Panels, composed from budget/, home/ and coach/ sub-components
 tests/api/           Handler tests with mocked upstreams
 docs/                Solution design and architecture
 ```

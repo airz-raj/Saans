@@ -6,51 +6,25 @@ import { POLLUTANT_LABELS } from './constants';
 import { formatConc, formatDose, percent } from './explain';
 import type { HomeHack } from './indoor';
 import type { AqiResult, DayBudget, Profile, Swap } from './types';
+import type {
+  CoachAdvisory,
+  CoachAnswer,
+  CoachContext,
+  CoachPlan,
+  Language,
+} from '../../shared/coachContract';
 
-export type CoachMode = 'plan' | 'ask' | 'community';
-export type Language = 'en' | 'hi';
+export type {
+  CoachAdvisory,
+  CoachAnswer,
+  CoachContext,
+  CoachMode,
+  CoachPlan,
+  CoachResultByMode,
+  Language,
+} from '../../shared/coachContract';
 
-export interface CoachContext {
-  place: string;
-  aqi: number;
-  category: string;
-  dominant: string;
-  pm25Now: number;
-  cleanWindow: string | null;
-  worstWindow: string | null;
-  /** Next 24 hours of outdoor PM2.5 with 12-hour clock labels, so the model can reason about times. */
-  forecast: { time: string; pm25: number }[];
-  household: {
-    persona: Profile['persona'];
-    children: number;
-    elders: number;
-    sensitiveMember: boolean;
-  };
-  budget: {
-    totalDoseUg: number;
-    cigarettes: number;
-    whoMultiple: number;
-    top: { label: string; doseUg: number; sharePct: number }[];
-  };
-  swaps: { title: string; savedPct: number; co2SavedKg: number }[];
-  hacks: { title: string; indoorBefore: number; indoorAfter: number }[];
-}
-
-export interface CoachPlan {
-  headline: string;
-  steps: { title: string; why: string; impact: string }[];
-  caution: string;
-}
-export interface CoachAnswer {
-  answer: string;
-  followUps: string[];
-}
-export interface CoachAdvisory {
-  title: string;
-  message: string;
-}
-
-const round1 = (n: number) => Math.round(n * 10) / 10;
+const round1 = (n: number): number => Math.round(n * 10) / 10;
 
 export interface ContextInput {
   placeName: string;
@@ -110,7 +84,7 @@ export function buildCoachContext(input: ContextInput): CoachContext {
   };
 }
 
-const vulnerableNote = (ctx: CoachContext) => {
+const vulnerableNote = (ctx: CoachContext): string => {
   const people: string[] = [];
   if (ctx.household.children > 0) people.push('children');
   if (ctx.household.elders > 0) people.push('elders');

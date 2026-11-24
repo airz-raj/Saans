@@ -23,7 +23,7 @@ export const MOMENT_SOURCES: Record<Moment, ActiveSources> = {
   sleeping: { mosquitoCoil: true },
 };
 
-export const roomVolume = (room: Pick<RoomSetup, 'areaM2' | 'ceilingM'>) =>
+export const roomVolume = (room: Pick<RoomSetup, 'areaM2' | 'ceilingM'>): number =>
   Math.max(1, room.areaM2 * room.ceilingM);
 
 /** Total indoor source strength in µg/h for the sources that are both present and active. */

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { categoryFor, categoryToken, subIndex } from '../core/aqi';
 import { formatConc } from '../core/explain';
 import { formatHour, pointHour, type TimeWindow } from '../core/forecast';
@@ -13,7 +14,7 @@ const WIDTH = 480;
 const BASE = 128;
 
 /** Hand-drawn SVG bars (no chart library) with a data table for screen readers and keyboard users. */
-export function HourlyChart({ hours, highlight, summary }: HourlyChartProps) {
+export function HourlyChart({ hours, highlight, summary }: HourlyChartProps): ReactElement {
   const max = Math.max(60, ...hours.map((h) => h.pm2_5));
   const barWidth = WIDTH / Math.max(1, hours.length);
   return (

@@ -46,6 +46,7 @@ export function computeAqi(reading: Concentrations): AqiResult {
 }
 
 /** Stable, CSS-friendly token for a category (used for colours and test ids). */
-export const categoryToken = (category: AqiCategory) =>
-  category.toLowerCase().replace(/\s+/g, '-') as
-    'good' | 'satisfactory' | 'moderate' | 'poor' | 'very-poor' | 'severe';
+export type CategoryToken = 'good' | 'satisfactory' | 'moderate' | 'poor' | 'very-poor' | 'severe';
+
+export const categoryToken = (category: AqiCategory): CategoryToken =>
+  category.toLowerCase().replace(/\s+/g, '-') as CategoryToken;

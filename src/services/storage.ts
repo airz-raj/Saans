@@ -123,5 +123,5 @@ export function sanitisePlan(raw: unknown): Activity[] | null {
         ...(a.extraCadr ? { extraCadr: num(a.extraCadr, 0, 0, 2000) } : {}),
       };
     });
-  return plan.every((a) => a !== null) ? (plan as Activity[]) : null;
+  return plan.every((a) => a !== null) ? plan : null;
 }

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import { categoryToken } from '../core/aqi';
 import type { AqiResult } from '../core/types';
 
@@ -9,11 +9,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
  * Seconds per breath for the ring's animation: calm and slow on clean days, short and
  * laboured as the index climbs. Purely decorative; disabled for reduced-motion users.
  */
-export const breathSeconds = (aqi: number) =>
+export const breathSeconds = (aqi: number): number =>
   Number((6 - 3.4 * Math.min(1, Math.max(0, aqi) / 500)).toFixed(2));
 
 /** The AQI as a ring that "breathes"; the number and category are always written out. */
-export function BreathRing({ aqi }: { aqi: AqiResult }) {
+export function BreathRing({ aqi }: { aqi: AqiResult }): ReactElement {
   const fraction = Math.min(1, aqi.aqi / 500);
   const style = { '--breath': `${breathSeconds(aqi.aqi)}s` } as CSSProperties;
   return (

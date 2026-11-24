@@ -1,8 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactElement } from 'react';
 import {
-  cleanestCommute,
-  commuteSwap,
-  LIFESTYLE_SWAPS,
+  householdSwaps,
   PM_PER_CIGARETTE_G,
   scaleImpact,
   SMOG_SEASON_WEEKS,
@@ -42,14 +40,11 @@ function Totals({ title, impact }: { title: string; impact: Emission }) {
   );
 }
 
-export function SwapsPanel({ profile }: { profile: Profile }) {
-  const swaps = useMemo<LifestyleSwap[]>(() => {
-    if (profile.commuteMode === 'none' || profile.commuteKm <= 0) return [...LIFESTYLE_SWAPS];
-    const alternative = cleanestCommute(profile.commuteMode, profile.commuteKm);
-    return alternative
-      ? [commuteSwap(profile.commuteMode, profile.commuteKm, alternative), ...LIFESTYLE_SWAPS]
-      : [...LIFESTYLE_SWAPS];
-  }, [profile.commuteMode, profile.commuteKm]);
+export function SwapsPanel({ profile }: { profile: Profile }): ReactElement {
+  const swaps = useMemo(
+    () => householdSwaps(profile.commuteMode, profile.commuteKm),
+    [profile.commuteMode, profile.commuteKm],
+  );
 
   const [perWeek, setPerWeek] = useState<Record<string, number>>({});
   const [households, setHouseholds] = useState(200);

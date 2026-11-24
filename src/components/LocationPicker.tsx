@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState, type ReactElement } from 'react';
 import type { Place } from '../core/types';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { searchPlaces } from '../services/api';
@@ -16,7 +16,7 @@ interface SearchState {
   error?: string;
 }
 
-export function LocationPicker({ current, onSelect }: LocationPickerProps) {
+export function LocationPicker({ current, onSelect }: LocationPickerProps): ReactElement {
   const inputId = useId();
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState<SearchState>({ query: '', results: [] });

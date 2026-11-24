@@ -152,3 +152,15 @@ export function scaleImpact(weekly: Emission, households: number, weeks = 1): Em
   const factor = Math.max(0, households) * Math.max(0, weeks);
   return { co2Kg: weekly.co2Kg * factor, pmG: weekly.pmG * factor };
 }
+
+/**
+ * Every swap relevant to a household: its own commute (when a cleaner mode exists for that
+ * distance) followed by the general lifestyle swaps.
+ */
+export function householdSwaps(mode: TransportMode | 'none', km: number): LifestyleSwap[] {
+  if (mode === 'none' || km <= 0) return [...LIFESTYLE_SWAPS];
+  const alternative = cleanestCommute(mode, km);
+  return alternative
+    ? [commuteSwap(mode, km, alternative), ...LIFESTYLE_SWAPS]
+    : [...LIFESTYLE_SWAPS];
+}

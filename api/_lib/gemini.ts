@@ -102,7 +102,7 @@ async function callModel(
  * aborted. Non-retryable errors (e.g. an invalid key) stop new attempts immediately.
  */
 export function generateJson(options: GeminiOptions): Promise<unknown> {
-  const preferred = options.model || DEFAULT_MODEL;
+  const preferred = options.model?.trim() ? options.model : DEFAULT_MODEL;
   const queue = [preferred, ...FALLBACK_MODELS.filter((m) => m !== preferred), preferred];
   const now = options.now ?? Date.now;
   const deadline = now() + (options.budgetMs ?? TOTAL_BUDGET_MS);

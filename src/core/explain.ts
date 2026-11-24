@@ -9,9 +9,9 @@ export const formatDose = (micrograms: number): string => {
   return `${Math.round(micrograms)} µg`;
 };
 
-export const formatConc = (value: number) => `${Math.round(value)} µg/m³`;
+export const formatConc = (value: number): string => `${Math.round(value)} µg/m³`;
 
-export const percent = (part: number, whole: number) =>
+export const percent = (part: number, whole: number): number =>
   whole <= 0 ? 0 : Math.round((part / whole) * 100);
 
 export interface Advice {
@@ -53,7 +53,7 @@ const ADVICE: Record<AqiCategory, Advice> = {
 
 export const aqiAdvice = (category: AqiCategory): Advice => ADVICE[category];
 
-export const dominantText = (pollutant: Pollutant) =>
+export const dominantText = (pollutant: Pollutant): string =>
   `${POLLUTANT_LABELS[pollutant]} is driving the index right now.`;
 
 /** Plain-language reason a swap helps, with the numbers behind it. */

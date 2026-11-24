@@ -41,7 +41,12 @@ cache at the edge and lock the Content-Security-Policy to `'self'`.
 | Serverless API | `api/`            | Edge of the system: validation, rate limits, upstream calls, prompt building                           | `api/_lib` only          |
 
 Rules: `core` never imports React or `fetch`; components never call `fetch`
-directly; API handlers never trust client input.
+directly; API handlers never trust client input; the coach contract is defined once in
+`shared/coachContract.ts` and never duplicated.
+
+Components are grouped by panel (`components/budget`, `components/home`,
+`components/coach`) so each file has one job; panels only compose them. Stateful logic lives
+in hooks (`useAir`, `usePlan`, `useCoach`, `useInsights`).
 
 ## 3. Domain engine (`src/core`)
 

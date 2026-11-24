@@ -8,7 +8,7 @@ export interface TimeWindow {
   average: number;
 }
 
-const hourOf = (point: HourPoint) => Number(point.time.slice(11, 13));
+const hourOf = (point: HourPoint): number => Number(point.time.slice(11, 13));
 
 /**
  * Finds the contiguous window of `length` hours with the lowest (or highest) mean value,

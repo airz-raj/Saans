@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import type { AirState } from '../hooks/useAir';
 
 const timeOf = (iso: string) => {
@@ -7,7 +8,7 @@ const timeOf = (iso: string) => {
     : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 };
 
-export function StatusBanner({ air }: { air: AirState }) {
+export function StatusBanner({ air }: { air: AirState }): ReactElement {
   const { status, snapshot, message } = air;
   const text = {
     sample:

@@ -1,6 +1,7 @@
 import {
   cleanestCommute,
   commuteSwap,
+  householdSwaps,
   LIFESTYLE_SWAPS,
   scaleImpact,
   tripEmissions,
@@ -45,5 +46,19 @@ describe('emissions', () => {
 
   it('is honest when a cleaner option adds fossil CO₂', () => {
     expect(LIFESTYLE_SWAPS.find((s) => s.id === 'chulha-lpg')?.co2Kg).toBeLessThan(0);
+  });
+});
+
+describe('householdSwaps', () => {
+  it('puts the family’s own commute first when a cleaner mode exists', () => {
+    const swaps = householdSwaps('car', 10);
+    expect(swaps[0]?.id).toBe('commute-metro');
+    expect(swaps).toHaveLength(LIFESTYLE_SWAPS.length + 1);
+  });
+
+  it('falls back to the general list without a commute or a cleaner option', () => {
+    expect(householdSwaps('none', 10)).toEqual(LIFESTYLE_SWAPS);
+    expect(householdSwaps('car', 0)).toEqual(LIFESTYLE_SWAPS);
+    expect(householdSwaps('walk', 2)).toEqual(LIFESTYLE_SWAPS);
   });
 });

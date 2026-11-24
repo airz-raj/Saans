@@ -149,7 +149,10 @@ describe('Ask Saans', () => {
   it('shows Gemini answers and sends the chosen language', async () => {
     const fetchMock = installFetch((url, init) => {
       if (url.pathname !== '/api/coach') return undefined;
-      const body = JSON.parse(String(init?.body)) as { mode: string; language: string };
+      const body = JSON.parse(typeof init?.body === 'string' ? init.body : '{}') as {
+        mode: string;
+        language: string;
+      };
       if (body.mode === 'ask')
         return { body: { result: { answer: `Answer in ${body.language}`, followUps: ['Next?'] } } };
       return { body: { result: { title: 'सलाह', message: 'खिड़कियाँ बंद रखें' } } };
@@ -250,11 +253,14 @@ describe('Household and location', () => {
     const getCurrentPosition = vi.fn((success: PositionCallback) =>
       success({ coords: { latitude: 28.3531, longitude: 76.9404 } } as GeolocationPosition),
     );
-    vi.stubGlobal('navigator', { ...navigator, geolocation: { getCurrentPosition } });
+    Object.defineProperty(navigator, 'geolocation', {
+      value: { getCurrentPosition },
+      configurable: true,
+    });
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: 'Use my location' }));
-    await act(async () => {});
+    await act(() => Promise.resolve());
     expect(screen.getByText('My location')).toBeInTheDocument();
     expect(localStorage.getItem('saans.profile.v1')).toContain('"lat":28.35');
   });

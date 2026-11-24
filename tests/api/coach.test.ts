@@ -2,7 +2,7 @@ import { createCoachHandler } from '../../api/coach';
 import { DEFAULT_MODEL, FALLBACK_MODELS, generateJson } from '../../api/_lib/gemini';
 import { buildPrompt, sanitiseQuestion } from '../../api/_lib/prompt';
 import { createRateLimiter } from '../../api/_lib/rateLimit';
-import { coachContext, geminiReply, stubFetch } from './fixtures';
+import { coachContext, geminiReply, stubFetch, urlOf } from './fixtures';
 
 // Handlers log upstream failures on purpose; keep test output readable.
 beforeEach(() => {
@@ -172,7 +172,7 @@ describe('model fallback', () => {
   const sequence = (replies: { status: number; body: unknown }[]) => {
     const calls: string[] = [];
     const fetchImpl = (async (url: string | URL | Request) => {
-      calls.push(String(url));
+      calls.push(urlOf(url));
       const reply = replies[calls.length - 1] ?? replies[replies.length - 1]!;
       return new Response(JSON.stringify(reply.body), { status: reply.status });
     }) as typeof fetch;
@@ -228,7 +228,7 @@ describe('time budget', () => {
     let clock = 0;
     const calls: string[] = [];
     const fetchImpl = (async (url: string | URL | Request) => {
-      calls.push(String(url));
+      calls.push(urlOf(url));
       clock += 24_000; // each attempt "takes" 24 s
       return new Response('{}', { status: 503 });
     }) as typeof fetch;
@@ -251,7 +251,7 @@ describe('hedged requests', () => {
     const calls: string[] = [];
     let firstAborted = false;
     const fetchImpl = ((url: string | URL | Request, init?: RequestInit) => {
-      calls.push(String(url));
+      calls.push(urlOf(url));
       if (calls.length === 1) {
         return new Promise<Response>((_, reject) => {
           init?.signal?.addEventListener('abort', () => {
@@ -273,5 +273,36 @@ describe('hedged requests', () => {
     expect(result).toEqual({ fast: true });
     expect(calls[1]).toContain(`${FALLBACK_MODELS[0]}:generateContent`);
     expect(firstAborted).toBe(true);
+  });
+});
+
+describe('generateJson edge cases', () => {
+  it('reports when the budget leaves no time for any attempt', async () => {
+    const { fetchImpl, calls } = stubFetch(geminiReply({ ok: true }));
+    await expect(
+      generateJson({ apiKey: 'k', system: 's', prompt: 'p', schema: {}, fetchImpl, budgetMs: 0 }),
+    ).rejects.toThrow('no model attempted');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('uses a configured model first and treats empty text as retryable', async () => {
+    const calls: string[] = [];
+    const fetchImpl = ((url: string | URL | Request) => {
+      calls.push(urlOf(url));
+      const body =
+        calls.length === 1 ? { candidates: [{ content: { parts: [] } }] } : geminiReply({ ok: 2 });
+      return Promise.resolve(new Response(JSON.stringify(body)));
+    }) as typeof fetch;
+    const result = await generateJson({
+      apiKey: 'k',
+      model: 'my-model',
+      system: 's',
+      prompt: 'p',
+      schema: {},
+      fetchImpl,
+      pauseMs: 0,
+    });
+    expect(result).toEqual({ ok: 2 });
+    expect(calls[0]).toContain('/models/my-model:generateContent');
   });
 });

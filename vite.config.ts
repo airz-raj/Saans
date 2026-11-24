@@ -26,9 +26,11 @@ export default defineConfig(({ mode }) => {
       include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.ts'],
       coverage: {
         provider: 'v8',
-        include: ['src/**/*.{ts,tsx}', 'api/**/*.ts'],
+        include: ['src/**/*.{ts,tsx}', 'api/**/*.ts', 'shared/**/*.ts'],
         exclude: ['src/main.tsx', 'src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/testing/**'],
         reporter: ['text', 'html', 'lcov'],
+        // CI fails if coverage drops below today's level.
+        thresholds: { statements: 95, branches: 90, functions: 93, lines: 95 },
       },
     },
   };

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { POLLUTANT_LABELS } from '../core/constants';
 import { aqiAdvice, dominantText, formatConc } from '../core/explain';
 import type { Outlook, TimeWindow } from '../core/forecast';
@@ -12,7 +13,13 @@ interface TodayPanelProps {
   windowLabel: (window: TimeWindow | null) => string | null;
 }
 
-export function TodayPanel({ snapshot, aqi, outlook, profile, windowLabel }: TodayPanelProps) {
+export function TodayPanel({
+  snapshot,
+  aqi,
+  outlook,
+  profile,
+  windowLabel,
+}: TodayPanelProps): ReactElement {
   const advice = aqiAdvice(aqi.category);
   const hasVulnerable =
     profile.children > 0 ||
